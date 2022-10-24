@@ -1,0 +1,21 @@
+{
+  "name": "react-org",
+  "version": "1.0.0",
+  "description": "curated list of tools to help build magical react apps ",
+  "main": "index.js",
+  "repository": "https://github.com/naiduprakash/react-org.git",
+  "author": "naiduprakash",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "lerna": "^6.0.1"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "start": "lerna run start --stream"
+  }
+}
