@@ -1,6 +1,6 @@
 {
   "name": "@react-org/hooks",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "curated list of reusable custom hooks",
   "author": "https://github.com/naiduprakash",
   "license": "MIT",
@@ -43,5 +43,6 @@
   },
   "files": [
     "dist"
-  ]
+  ],
+  "gitHead": "87671a33c12b0518479dd3558cd48ee430078340"
 }
