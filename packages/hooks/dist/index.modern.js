@@ -1,12 +1,7 @@
-function useAsync$1() {
+function useAsync() {
   console.log("inside useAsync");
-  return [1, 2];
+  return [];
 }
 
-var index = {
-  useAsync: useAsync
-};
-
-export default index;
-export { useAsync$1 as useAsync };
+export { useAsync };
 //# sourceMappingURL=index.modern.js.map
