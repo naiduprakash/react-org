@@ -9,7 +9,8 @@
   "module": "dist/index.modern.js",
   "source": [
     "src/index.js",
-    "src/use-async.js"
+    "src/use-async.js",
+    "src/use-debounce.js"
   ],
   "engines": {
     "node": ">=10"
