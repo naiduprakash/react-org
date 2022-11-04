@@ -169,16 +169,7 @@ export default function useAsync(asyncFunction, _config = {}) {
           });
       })();
     },
-    [
-      asyncFunction,
-      infinite,
-      onComplete,
-      onError,
-      onStart,
-      onSuccess,
-      select,
-      withAxiosAbort,
-    ]
+    [asyncFunction, infinite, onComplete, onError, onStart, onSuccess, select]
   );
 
   const debounceExecute = useDebounce(execute, debounceTime, [
