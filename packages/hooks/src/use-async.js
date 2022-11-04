@@ -37,7 +37,8 @@ const INITIAL_STATE = {
   error: null,
 };
 
-function asyncReducer(state = INITIAL_STATE, { type, payload }) {
+function asyncReducer(state = INITIAL_STATE, action = {}) {
+  const { type, payload } = action;
   switch (type) {
     case ACTION_TYPES.START: {
       let updatedState = {
@@ -99,7 +100,6 @@ export default function useAsync(asyncFunction, _config = {}) {
     onStart = FUNCTION_PLACEHOLDER,
     onComplete = FUNCTION_PLACEHOLDER,
     debounceTime = 200,
-    withAxiosAbort = false,
   } = _config;
 
   //required for React.Strictmode to work
@@ -111,8 +111,6 @@ export default function useAsync(asyncFunction, _config = {}) {
     { isReset, isComplete, status, data, error, restMeta = {} },
     dispatch,
   ] = useReducer(asyncReducer, Object.assign({}, INITIAL_STATE, intialState));
-
-  // const [abort, setAbort] = useState(null);
 
   const setQueryData = useCallback((_data) => {
     dispatch({
@@ -128,18 +126,11 @@ export default function useAsync(asyncFunction, _config = {}) {
           type: ACTION_TYPES.START,
           payload: { overwrite: config.overwrite },
         });
+        abortControllerRef.current = new AbortController();
         let _onStart = config?.onStart || onStart;
 
-        let params = args;
-        // if (withAxiosAbort) {
-        // let controller = new AbortController();
-        abortControllerRef.current = new AbortController();
-        params.signal = abortControllerRef.current.signal;
-        // setAbort(controller);
-        // }
-
         await _onStart();
-        asyncFunction(params)
+        asyncFunction({ ...args, signal: abortControllerRef.current.signal })
           .then(async (res) => {
             let payload;
             if (select) {

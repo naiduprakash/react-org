@@ -71,12 +71,16 @@ var INITIAL_STATE = {
   data: null,
   error: null
 };
-function asyncReducer(state, _ref) {
+function asyncReducer(state, action) {
   if (state === void 0) {
     state = INITIAL_STATE;
   }
-  var type = _ref.type,
-    payload = _ref.payload;
+  if (action === void 0) {
+    action = {};
+  }
+  var _action = action,
+    type = _action.type,
+    payload = _action.payload;
   switch (type) {
     case ACTION_TYPES.START:
       {
@@ -167,9 +171,7 @@ function useAsync(asyncFunction, _config) {
     _config2$onComplete = _config2.onComplete,
     onComplete = _config2$onComplete === void 0 ? FUNCTION_PLACEHOLDER : _config2$onComplete,
     _config2$debounceTime = _config2.debounceTime,
-    debounceTime = _config2$debounceTime === void 0 ? 200 : _config2$debounceTime,
-    _config2$withAxiosAbo = _config2.withAxiosAbort,
-    withAxiosAbort = _config2$withAxiosAbo === void 0 ? false : _config2$withAxiosAbo;
+    debounceTime = _config2$debounceTime === void 0 ? 200 : _config2$debounceTime;
 
   var ignoreRef = useRef(false);
   var abortControllerRef = useRef(null);
@@ -183,7 +185,6 @@ function useAsync(asyncFunction, _config) {
     _useReducer$$restMeta = _useReducer$.restMeta,
     restMeta = _useReducer$$restMeta === void 0 ? {} : _useReducer$$restMeta,
     dispatch = _useReducer[1];
-
   var setQueryData = useCallback(function (_data) {
     dispatch({
       type: ACTION_TYPES.SET_DATA,
@@ -205,12 +206,12 @@ function useAsync(asyncFunction, _config) {
           overwrite: config.overwrite
         }
       });
-      var _onStart = ((_config3 = config) === null || _config3 === void 0 ? void 0 : _config3.onStart) || onStart;
-      var params = args;
       abortControllerRef.current = new AbortController();
-      params.signal = abortControllerRef.current.signal;
+      var _onStart = ((_config3 = config) === null || _config3 === void 0 ? void 0 : _config3.onStart) || onStart;
       return Promise.resolve(_onStart()).then(function () {
-        asyncFunction(params).then(function (res) {
+        asyncFunction(_extends({}, args, {
+          signal: abortControllerRef.current.signal
+        })).then(function (res) {
           try {
             var _config4;
             var payload;
