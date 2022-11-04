@@ -266,7 +266,7 @@ function useAsync(asyncFunction, _config) {
     } catch (e) {
       Promise.reject(e);
     }
-  }, [asyncFunction, infinite, onComplete, onError, onStart, onSuccess, select, withAxiosAbort]);
+  }, [asyncFunction, infinite, onComplete, onError, onStart, onSuccess, select]);
   var debounceExecute = useDebounce(execute, debounceTime, [execute, debounceTime]);
   var reset = useCallback(function () {
     dispatch({
