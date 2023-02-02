@@ -1,11 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import useDebounce from "./use-debounce";
 
@@ -37,58 +30,74 @@ const INITIAL_STATE = {
   error: null,
 };
 
+function handleActionStart(state = {}, action) {
+  const updatedState = {
+    ...state,
+    status: ASYNC_STATUS.PENDING,
+    isComplete: false,
+  };
+  if (action.payload.overwrite) {
+    updatedState.data = [];
+  }
+  return updatedState;
+}
+
+function handleActionSuccess(state = {}, action) {
+  const { data: _data = [], infinite, overwrite, paginate } = action.payload;
+  let data;
+  if (infinite) {
+    data = overwrite ? _data : [...(state.data || []), ..._data];
+  } else {
+    data = action.payload;
+  }
+  return {
+    ...state,
+    status: ASYNC_STATUS.SUCCESS,
+    data: data,
+    paginate: paginate,
+  };
+}
+
+function handleActionError(state = {}, action) {
+  return { ...state, status: ASYNC_STATUS.ERROR, error: action.payload };
+}
+function handleActionComplete(state = {}, action) {
+  return { ...state, isComplete: true };
+}
+function handleActionReset(state = {}, action) {
+  return { ...state, ...INITIAL_STATE, isComplete: false, isReset: true };
+}
+function handleActionSetData(state, action) {
+  return { ...state, data: action.payload };
+}
+
 function asyncReducer(state = INITIAL_STATE, action = {}) {
-  const { type, payload } = action;
-  switch (type) {
+  switch (action.type) {
     case ACTION_TYPES.START: {
-      let updatedState = {
-        ...state,
-        status: ASYNC_STATUS.PENDING,
-        isComplete: false,
-      };
-      if (payload.overwrite) {
-        updatedState.data = [];
-      }
-      return updatedState;
+      return handleActionStart(state, action);
     }
     case ACTION_TYPES.SUCCESS: {
-      let { data: _data, infinite, overwrite, ...rest } = payload;
-      let data;
-      if (infinite) {
-        if (overwrite) {
-          data = _data;
-        } else {
-          data = [...(state?.data || []), ..._data];
-        }
-      } else {
-        data = payload;
-      }
-      return {
-        ...state,
-        status: ASYNC_STATUS.SUCCESS,
-        data: data,
-        restMeta: rest,
-      };
+      return handleActionSuccess(state, action);
     }
     case ACTION_TYPES.ERROR: {
-      return { ...state, status: ASYNC_STATUS.ERROR, error: payload };
+      return handleActionError(state, action);
     }
     case ACTION_TYPES.COMPLETE: {
-      return { ...state, isComplete: true };
+      return handleActionComplete(state, action);
     }
     case ACTION_TYPES.RESET: {
-      return { ...state, ...INITIAL_STATE, isComplete: false, isReset: true };
+      return handleActionReset(state, action);
     }
     case ACTION_TYPES.SET_DATA: {
-      return { ...state, data: payload };
+      return handleActionSetData(state, action);
     }
     default: {
-      throw new Error(`Action ${type} is not handled in asyncReducer`);
+      throw new Error(`Action ${action.type} is not handled in asyncReducer`);
     }
   }
 }
 
-export default function useAsync(asyncFunction, _config = {}) {
+export default function useAsync(asyncFunction, defaultConfig = {}) {
   const {
     intialState = {},
     enabled = true,
@@ -100,26 +109,23 @@ export default function useAsync(asyncFunction, _config = {}) {
     onStart = FUNCTION_PLACEHOLDER,
     onComplete = FUNCTION_PLACEHOLDER,
     debounceTime = 200,
-  } = _config;
+  } = defaultConfig;
 
-  //required for React.Strictmode to work
+  // Note: required for React.Strictmode to work
   const ignoreRef = useRef(false);
 
   const abortControllerRef = useRef(null);
 
-  const [
-    { isReset, isComplete, status, data, error, restMeta = {} },
-    dispatch,
-  ] = useReducer(asyncReducer, Object.assign({}, INITIAL_STATE, intialState));
+  const [state, dispatch] = useReducer(asyncReducer, Object.assign({}, INITIAL_STATE, intialState));
 
-  const setQueryData = useCallback((_data) => {
+  const handleSetQueryData = useCallback((_data) => {
     dispatch({
       type: ACTION_TYPES.SET_DATA,
       payload: _data,
     });
   }, []);
 
-  const execute = useCallback(
+  const handleExecute = useCallback(
     (args = {}, config = {}) => {
       (async () => {
         dispatch({
@@ -127,14 +133,18 @@ export default function useAsync(asyncFunction, _config = {}) {
           payload: { overwrite: config.overwrite },
         });
         abortControllerRef.current = new AbortController();
-        let _onStart = config?.onStart || onStart;
+        const _onStart = config?.onStart || onStart;
 
         await _onStart();
         asyncFunction({ ...args, signal: abortControllerRef.current.signal })
           .then(async (res) => {
             let payload;
             if (select) {
-              payload = select(res);
+              const selectRes = select(res);
+              payload = {
+                data: selectRes?.data,
+                paginate: selectRes?.paginate,
+              };
             } else if (infinite) {
               payload = {
                 data: res?.data?.data,
@@ -148,7 +158,7 @@ export default function useAsync(asyncFunction, _config = {}) {
             payload.infinite = infinite;
 
             dispatch({ type: ACTION_TYPES.SUCCESS, payload: payload });
-            let _onSuccess = config?.onSuccess || onSuccess;
+            const _onSuccess = config?.onSuccess || onSuccess;
             await _onSuccess(payload);
           })
           .catch(async (err) => {
@@ -159,12 +169,12 @@ export default function useAsync(asyncFunction, _config = {}) {
               type: ACTION_TYPES.ERROR,
               payload: err?.response || err,
             });
-            let _onError = config?.onError || onError;
+            const _onError = config?.onError || onError;
             await _onError(err);
           })
           .finally(async () => {
             dispatch({ type: ACTION_TYPES.COMPLETE });
-            let _onComplete = config?.onComplete || onComplete;
+            const _onComplete = config?.onComplete || onComplete;
             await _onComplete();
           });
       })();
@@ -172,68 +182,39 @@ export default function useAsync(asyncFunction, _config = {}) {
     [asyncFunction, infinite, onComplete, onError, onStart, onSuccess, select]
   );
 
-  const debounceExecute = useDebounce(execute, debounceTime, [
-    execute,
-    debounceTime,
-  ]);
+  const handleDebounceExecute = useDebounce(handleExecute, debounceTime, [handleExecute, debounceTime]);
 
-  const reset = useCallback(() => {
+  const handleReset = useCallback(() => {
     dispatch({ type: ACTION_TYPES.RESET });
   }, []);
 
-  const cancel = useCallback(() => {
+  const handleCancel = useCallback(() => {
     abortControllerRef?.current?.abort?.();
   }, []);
 
   useEffect(() => {
-    if (
-      !ignoreRef.current &&
-      status === ASYNC_STATUS.IDLE &&
-      immediate &&
-      enabled
-    ) {
-      execute();
+    if (!ignoreRef.current && state.status === ASYNC_STATUS.IDLE && immediate && enabled) {
+      handleExecute();
     }
     return () => {
       ignoreRef.current = true;
     };
-  }, [enabled, execute, immediate, status]);
+  }, [enabled, handleExecute, immediate, state, state.status]);
 
   return useMemo(() => {
-    let values = {};
-
-    Object.keys(restMeta).forEach((key) => {
-      values[key] = restMeta[key];
-    });
-
     return {
-      ...values,
-      data,
-      execute,
-      debounceExecute,
-      setQueryData,
-      error,
-      status,
-      isReset,
-      isComplete,
-      reset,
-      isIdle: status === ASYNC_STATUS.IDLE,
-      isPending: status === ASYNC_STATUS.PENDING,
-      isError: status === ASYNC_STATUS.ERROR,
-      isSuccess: status === ASYNC_STATUS.SUCCESS,
-      cancel,
+      ...state,
+
+      reset: handleReset,
+      cancel: handleCancel,
+      execute: handleExecute,
+      setQueryData: handleSetQueryData,
+      debounceExecute: handleDebounceExecute,
+
+      isIdle: state.status === ASYNC_STATUS.IDLE,
+      isPending: state.status === ASYNC_STATUS.PENDING,
+      isError: state.status === ASYNC_STATUS.ERROR,
+      isSuccess: state.status === ASYNC_STATUS.SUCCESS,
     };
-  }, [
-    cancel,
-    data,
-    debounceExecute,
-    error,
-    execute,
-    isComplete,
-    isReset,
-    reset,
-    restMeta,
-    setQueryData,
-    status,
-  ]);
+  }, [state, handleExecute, handleDebounceExecute, handleSetQueryData, handleReset, handleCancel]);
 }

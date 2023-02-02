@@ -7,23 +7,12 @@
 ## Install
 
 ```bash
-npm install --save hooks
+npm i @react-org/hooks
 ```
 
 ## Usage
 
-```tsx
-import React, { Component } from 'react'
 
-import MyComponent from 'hooks'
-import 'hooks/dist/index.css'
-
-class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
-}
-```
 
 ## License
 
