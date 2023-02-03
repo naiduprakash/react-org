@@ -12,21 +12,12 @@
     "src/use-async.js",
     "src/use-debounce.js"
   ],
+  "files": [
+    "dist"
+  ],
+  "gitHead": "62b7b8ed55e69d9396520cf9499b8dcf776ae44b",
   "engines": {
     "node": ">=10"
-  },
-  "eslintConfig": {
-    "extends": [
-      "standard",
-      "standard-jsx",
-      "standard-react",
-      "prettier",
-      "plugin:react-hooks/recommended"
-    ],
-    "env": {
-      "node": true,
-      "browser": true
-    }
   },
   "scripts": {
     "build": "microbundle-crl --no-compress --format modern,cjs",
@@ -38,26 +29,9 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.3",
     "cross-env": "^7.0.2",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-config-standard-react": "^9.2.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-standard": "^4.0.1",
     "gh-pages": "^2.2.0",
     "microbundle-crl": "^0.13.10",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4"
-  },
-  "files": [
-    "dist"
-  ],
-  "gitHead": "62b7b8ed55e69d9396520cf9499b8dcf776ae44b"
+    "npm-run-all": "^4.1.5"
+  }
 }
