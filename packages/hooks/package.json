@@ -6,43 +6,38 @@
   "license": "MIT",
   "repository": "https://github.com/naiduprakash/react-org.git",
   "main": "dist/index.js",
-  "module": "dist/index.modern.js",
+  "module": "dist/index.modern.mjs",
+  "types": "dist/index.d.ts",
   "source": [
-    "src/index.js",
-    "src/use-async.js",
-    "src/use-debounce.js"
+    "src/index.ts",
+    "src/use-async.ts",
+    "src/use-debounce.ts"
   ],
+  "files": [
+    "dist"
+  ],
+  "gitHead": "62b7b8ed55e69d9396520cf9499b8dcf776ae44b",
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs"
+    "clean": "rimraf dist",
+    "bundle":"microbundle --no-compress --format modern,cjs",
+    "build": "npm-run-all clean bundle",
+    "start": "microbundle watch --no-compress --format modern,cjs"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.3",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
     "cross-env": "^7.0.2",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.7.0",
-    "eslint-config-standard": "^14.1.0",
-    "eslint-config-standard-react": "^9.2.0",
-    "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^11.0.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.17.0",
-    "eslint-plugin-standard": "^4.0.1",
     "gh-pages": "^2.2.0",
-    "microbundle-crl": "^0.13.10",
+    "microbundle": "^0.15.1",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.0.4"
-  },
-  "files": [
-    "dist"
-  ],
-  "gitHead": "62b7b8ed55e69d9396520cf9499b8dcf776ae44b"
+    "rimraf": "^4.1.2",
+    "typescript": "^4.9.5"
+  }
 }
