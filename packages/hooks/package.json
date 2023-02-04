@@ -6,11 +6,12 @@
   "license": "MIT",
   "repository": "https://github.com/naiduprakash/react-org.git",
   "main": "dist/index.js",
-  "module": "dist/index.modern.js",
+  "module": "dist/index.modern.mjs",
+  "types": "dist/index.d.ts",
   "source": [
-    "src/index.js",
-    "src/use-async.js",
-    "src/use-debounce.js"
+    "src/index.ts",
+    "src/use-async.ts",
+    "src/use-debounce.ts"
   ],
   "files": [
     "dist"
@@ -20,18 +21,23 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs",
-    "start": "microbundle-crl watch --no-compress --format modern,cjs",
-    "lint": "eslint src/ --max-warnings 0"
+    "clean": "rimraf dist",
+    "bundle":"microbundle --no-compress --format modern,cjs",
+    "build": "npm-run-all clean bundle",
+    "start": "microbundle watch --no-compress --format modern,cjs"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
     "cross-env": "^7.0.2",
     "gh-pages": "^2.2.0",
-    "microbundle-crl": "^0.13.10",
-    "npm-run-all": "^4.1.5"
+    "microbundle": "^0.15.1",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^4.1.2",
+    "typescript": "^4.9.5"
   }
 }
