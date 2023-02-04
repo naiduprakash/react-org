@@ -1,0 +1,46 @@
+type State = {
+    status?: string;
+    data?: any;
+    error?: any;
+    isIdle?: boolean;
+    isPending?: boolean;
+    isComplete?: boolean;
+    isSuccess?: boolean;
+    isError?: boolean;
+    isReset?: boolean;
+    cancel?: Function;
+    debounceExecute?: Function;
+    execute?: Function;
+    reset?: Function;
+    setQueryData?: Function;
+};
+type Config = {
+    intialState?: State;
+    enabled?: boolean;
+    immediate?: boolean;
+    infinite?: boolean;
+    overwrite?: boolean;
+    select?: Function;
+    onError?: Function;
+    onSuccess?: Function;
+    onStart?: Function;
+    onComplete?: Function;
+    debounceTime?: number;
+};
+export default function useAsync(asyncFunction: Function, defaultConfig?: Config): {
+    reset: () => void;
+    cancel: () => void;
+    execute: (args?: any, config?: Config) => void;
+    setQueryData: (_data: any) => void;
+    debounceExecute: (this: any) => void;
+    isIdle: boolean;
+    isPending: boolean;
+    isError: boolean;
+    isSuccess: boolean;
+    status?: string | undefined;
+    data?: any;
+    error?: any;
+    isComplete?: boolean | undefined;
+    isReset?: boolean | undefined;
+};
+export {};
